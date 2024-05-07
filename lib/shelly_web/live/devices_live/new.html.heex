@@ -1,0 +1,19 @@
+<.container class="max-w-prose">
+    <.header>
+        Register new device
+        <:actions>
+            <.back navigate={~p"/devices"}>
+                Back
+            </.back>
+        </:actions>
+    </.header>
+
+    <.simple_form for={@form} phx-change="validate" phx-submit="save">
+        <.input field={@form[:name]} label="Name" />
+        <.input field={@form[:custom_name]} label="Custom name" />
+
+        <:actions>
+            <.button>Save</.button>
+        </:actions>
+    </.simple_form>
+</.container>

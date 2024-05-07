@@ -1,0 +1,59 @@
+<.container data-modal-target="delete-price-modal">
+    <.header>
+        Pricing info
+        <:actions>
+            <.link navigate={~p"/pricing/new"}
+                class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
+                Add pricing info
+            </.link>
+        </:actions>
+    </.header>
+
+    <div :if={length(@prices)==0}
+        class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
+        role="alert">
+        <.icon name="hero-information-circle" class="w-6 h-6 text-blue-700" />
+        <div class="ms-3 text-sm font-medium">No pricing info available</div>
+    </div>
+
+    <.table id="prices" rows={@prices} :if={length(@prices)>0} row_id={&("#{&1.id}")}>
+        <:col :let={price} label="Name" bold>
+            <%= price.name %>
+        </:col>
+        <:col :let={price} label="Amount" bold>
+            <%= price.amount %>
+        </:col>
+        <:col :let={price} label="Valid from">
+            <%= price.start_date %>
+        </:col>
+        <:col :let={price} label="Valid to">
+            <%= price.end_date %>
+        </:col>
+        <:col :let={price} label="Created at">
+            <%= price.inserted_at %>
+        </:col>
+
+        <:action :let={price}>
+            <.link navigate={~p"/pricing/#{price.id}"} class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit
+            </.link>
+        </:action>
+        <:action :let={price}>
+            <span data-modal-target="delete-price-modal" data-modal-toggle="delete-price-modal"
+                phx-click={JS.set_attribute({"phx-value-price-id", "#{price.id}" }, to: "#delete-price-action" )}
+                class="cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</span>
+        </:action>
+    </.table>
+
+    <.modal id="delete-price-modal">
+        <:title>Are you sure?</:title>
+
+        Deleting this pricing info can affect the accuracy of reports for all your registered devices.
+
+        <:action>
+            <.button id="delete-price-action" variant="danger" data-modal-hide="delete-price-modal"
+                phx-click="delete_price">Delete
+            </.button>
+            <.button variant="light" data-modal-hide="delete-price-modal">Cancel</.button>
+        </:action>
+    </.modal>
+</.container>

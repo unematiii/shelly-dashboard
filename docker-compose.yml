@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:12.17
+    restart: unless-stopped
+    command: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DATABASE_NAME: shelly
+    ports:
+      - '5432:5432'
+    volumes:
+      - './tmp/var/lib/postgresql/data:/var/lib/postgresql/data'
+
+  mosquitto:
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - '1883:1883'
+      - '9001:9001'
+    volumes:
+      - ./docker-compose-configs/mosquitto/config:/mosquitto/config
+      - ./docker-compose-configs/mosquitto/auth:/mosquitto/auth
+      - ./tmp/var/lib/mosquitto/data:/mosquitto/data
+      - ./tmp/var/logs:/mosquitto/log

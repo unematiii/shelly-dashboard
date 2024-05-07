@@ -1,0 +1,56 @@
+<.container data-modal-target="delete-device-modal">
+    <.header>
+        Registered devices
+        <:actions>
+            <.link navigate={~p"/devices/new"}
+                class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
+                New device
+            </.link>
+        </:actions>
+    </.header>
+
+    <div :if={length(@devices)==0}
+        class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
+        role="alert">
+        <.icon name="hero-information-circle" class="w-6 h-6 text-blue-700" />
+        <div class="ms-3 text-sm font-medium">No devices have been registered.</div>
+    </div>
+
+    <.table id="devices" rows={@devices} :if={length(@devices)>0} row_id={&("#{&1.id}")}>
+        <:col :let={device} label="Display name" bold>
+            <%= device.custom_name %>
+        </:col>
+        <:col :let={device} label="Device name">
+            <%= device.name %>
+        </:col>
+        <:col :let={device} label="Total" suffix="(kWh)" bold>
+            <%= device.total %>
+        </:col>
+        <:col :let={device} label="Last updated">
+            <%= device.updated_at %>
+        </:col>
+
+        <:action :let={device}>
+            <.link navigate={~p"/devices/#{device.id}"}
+                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</.link>
+        </:action>
+        <:action :let={device}>
+            <span data-modal-target="delete-device-modal" data-modal-toggle="delete-device-modal"
+                phx-click={JS.set_attribute({"phx-value-device-id", "#{device.id}" }, to: "#delete-device-action" )}
+                class="cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</span>
+        </:action>
+    </.table>
+
+    <.modal id="delete-device-modal">
+        <:title>Are you sure?</:title>
+
+        Deleting the device will also permanently delete all associated reports. This action cannot be undone!
+
+        <:action>
+            <.button id="delete-device-action" variant="danger" data-modal-hide="delete-device-modal"
+                phx-click="delete_device">Delete
+            </.button>
+            <.button variant="light" data-modal-hide="delete-device-modal">Cancel</.button>
+        </:action>
+    </.modal>
+</.container>

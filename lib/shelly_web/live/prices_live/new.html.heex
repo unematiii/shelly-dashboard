@@ -1,0 +1,14 @@
+<.container class="max-w-prose">
+    <.header>
+        Add pricing info
+        <:actions>
+            <.back navigate={~p"/pricing"}>
+                Back
+            </.back>
+        </:actions>
+    </.header>
+
+    <.live_component module={PriceForm} changeset={@changeset} price={@price} id="add-price-form"
+        phx-target="@myself" />
+
+</.container>

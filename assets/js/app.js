@@ -14,6 +14,9 @@
 //
 //     import "some-package"
 //
+// ApexCharts
+import ApexCharts from "apexcharts";
+
 // Flowbite
 import "flowbite/dist/flowbite.phoenix.js";
 
@@ -25,19 +28,23 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 
 // Flowbite datepicker
-import Datepicker from 'flowbite-datepicker/Datepicker';
+import Datepicker from "flowbite-datepicker/Datepicker";
 
 import topbar from "../vendor/topbar";
 
 const Hooks = {};
-Hooks.Datepicker = {
+Hooks.DatePicker = {
+  destroy() {
+    this.datepicker.destroy()
+  },
   mounted() {
     const datepickerEl = this.el;
-    new Datepicker(datepickerEl, {
+
+    this.datepicker = new Datepicker(datepickerEl, {
       format: "yyyy-mm-dd",
     });
 
-    datepickerEl.addEventListener('blur', (e) => {
+    datepickerEl.addEventListener("blur", (e) => {
       if (e.target.value) {
         datepickerEl.dispatchEvent(
           new Event("change", { bubbles: true, cancelable: true })
@@ -45,10 +52,154 @@ Hooks.Datepicker = {
       }
     });
   },
-  updated() {
-    this.mounted();
+  destroyed() {
+    this.destroy();
   }
 };
+
+Hooks.DateTimePicker = {
+  destroy() {
+    this.datepicker.destroy()
+  },
+  mounted() {
+    const datePicekrEl = this.el.querySelector('[data-role="date-picker"');
+    const timePicekrEl = this.el.querySelector('[data-role="time-picker"');
+
+    this.datepicker = new Datepicker(datePicekrEl, {
+      format: "yyyy-mm-dd",
+    })
+
+    datePicekrEl.addEventListener("blur", (e) => {
+      this.updateValue(e.target.value, timePicekrEl.value);
+    });
+
+    timePicekrEl.addEventListener("input", (e) => {
+      this.updateValue(datePicekrEl.value, e.target.value);
+    });
+  },
+  updateValue(
+    date, time
+  ) {
+    if (date && time) {
+      const input = this.el.querySelector('[data-role="input"');
+      input.value = `${date}T${time}`;
+      input.dispatchEvent(
+        new Event("change", { bubbles: true, cancelable: true })
+      );
+    }
+  },
+  destroyed() {
+    this.destroy();
+  }
+}
+
+Hooks.Chart = {
+  getSeries() {
+    return this.el.dataset.series ? JSON.parse(this.el.dataset.series) : []
+  },
+  destroy() {
+    this.chart.destroy()
+  },
+  mounted() {
+    const options = {
+      chart: {
+        height: "100%",
+        maxWidth: "100%",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: true,
+          tools: {
+            download: false,
+            selection: true,
+            zoom: true,
+            zoomin: false,
+            zoomout: false,
+            pan: false,
+            reset: true,
+          },
+        },
+        zoom: {
+          type: "x",
+          enabled: true,
+          autoScaleYaxis: true
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: true,
+          formatter: (timestamp) => new Date(timestamp).toISOString()
+        },
+        y: {
+          show: false
+        }
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      grid: {
+        show: true,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: -26
+        },
+      },
+      series: this.getSeries(),
+      legend: {
+        show: this.el.dataset.legendShow || false
+      },
+      stroke: {
+        curve: "smooth"
+      },
+      zoom: {
+        enabled: true
+      },
+      xaxis: {
+        type: this.el.dataset.xAxisType || 'numeric',
+        labels: {
+          show: true,
+          style: {
+            fontFamily: "Inter, sans-serif",
+            cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+          }
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: this.el.dataset.yAxisLabelsShow || false,
+        labels: {
+          formatter: (v) => {
+            if (this.el.dataset.yAxisLabelsFormat) {
+              return this.el.dataset.yAxisLabelsFormat.replace("(&1)", v);
+            }
+
+            return v;
+          }
+        }
+      },
+    };
+
+    this.chart = new ApexCharts(this.el, options);
+    this.chart.render();
+  },
+  updated() {
+    this.destroy();
+    this.mounted();
+  },
+  destroyed() {
+    this.destroy();
+  }
+}
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 const liveSocket = new LiveSocket("/live", Socket, {

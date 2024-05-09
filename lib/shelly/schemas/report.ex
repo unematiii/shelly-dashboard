@@ -32,10 +32,18 @@ defmodule Shelly.Schemas.Report do
     )
   end
 
+  def in_range(query, start_date, end_date) do
+    from(r in query,
+      where: fragment("? >= ?", r.inserted_at, ^start_date),
+      where: fragment("? <= ?", r.updated_at, ^end_date),
+      order_by: [asc: r.inserted_at]
+    )
+  end
+
   def with_device(query, device_id) do
     from(r in query,
       join: d in Shelly.Schemas.Device,
-      on: r.device_id ==  d.id,
+      on: r.device_id == d.id,
       where: d.id == ^device_id
     )
   end

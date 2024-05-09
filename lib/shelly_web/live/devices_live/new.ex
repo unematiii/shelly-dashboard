@@ -12,7 +12,7 @@ defmodule ShellyWeb.DevicesLive.New do
     form =
       %Device{}
       |> Device.create_changeset(device_params)
-      |> Map.put(:action, :update)
+      |> Map.put(:action, :insert)
       |> to_form()
 
     {:noreply, assign(socket, form: form)}

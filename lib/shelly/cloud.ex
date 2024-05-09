@@ -59,6 +59,7 @@ defmodule Shelly.Cloud do
       [%Device{}, ...]
 
   """
+  @spec list_devices() :: list(Device.t())
   def list_devices do
     Device
     |> order_by(asc: :id)
@@ -173,6 +174,13 @@ defmodule Shelly.Cloud do
   def list_reports(device_id) do
     Report
     |> Report.with_device(device_id)
+    |> Repo.all()
+  end
+
+  def list_reports_in_range(device_id, start_time, end_time) do
+    Report
+    |> Report.with_device(device_id)
+    |> Report.in_range(start_time, end_time)
     |> Repo.all()
   end
 

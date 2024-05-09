@@ -1,5 +1,7 @@
 defmodule Shelly.Schemas.Price do
   use Ecto.Schema
+
+  import Ecto.Query, only: [from: 2]
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
@@ -52,6 +54,13 @@ defmodule Shelly.Schemas.Price do
       changeset,
       get_field(changeset, :start_date),
       get_field(changeset, :end_date)
+    )
+  end
+
+  def in_range(query, start_date, end_date) do
+    from(p in query,
+      where: fragment("? <= ?", p.start_date, ^start_date),
+      where: fragment("? >= ?", p.end_date, ^end_date)
     )
   end
 

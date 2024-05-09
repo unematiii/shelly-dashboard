@@ -18,7 +18,7 @@ defmodule ShellyWeb.PricesLive.New do
     changeset =
       %Price{}
       |> Price.changeset(price_params)
-      |> Map.put(:action, :update)
+      |> Map.put(:action, :insert)
 
     {:noreply, set_changeset(socket, changeset)}
   end

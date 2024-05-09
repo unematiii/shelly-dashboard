@@ -1,0 +1,20 @@
+<.container class="h-full">
+    <h2 class="mb-8 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl dark:text-white">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Shelly</span> dashboard
+    </h2>
+
+    <.filters_drawer_trigger :if={@devices !=[]} target="filters-panel" />
+    <.filters_drawer :if={@devices !=[]} name="filters-panel">
+        <.live_component module={FiltersForm} devices={@devices} selected_devices={@selected_devices}
+            start_date={@start_date} end_date={@end_date} id="filters-form" />
+    </.filters_drawer>
+
+    <div class="grid grid-cols-1 gap-4">
+        <.consumption_chart reports={@reports} />
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <.device_price_chart :for={{name, reports} <- Map.to_list(@reports)} name={name} reports={reports}
+                prices={@prices} />
+        </div>
+    </div>
+</.container>

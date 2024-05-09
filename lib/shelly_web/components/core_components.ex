@@ -20,6 +20,34 @@ defmodule ShellyWeb.CoreComponents do
   import ShellyWeb.Gettext
 
   @doc """
+  Renders an alert.
+
+  ## Examples
+
+      <.alert id="confirm-modal" variant="info">
+        This is an alert text.
+      </.alert>
+  """
+
+  attr :variant, :string, default: "info"
+  slot :inner_block, required: true
+
+  def alert(%{variant: "info"} = assigns) do
+    ~H"""
+    <div
+      class={[
+        "flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50",
+        "dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
+      ]}
+      role="alert"
+    >
+      <.icon name="hero-information-circle" class="w-6 h-6 text-blue-700" />
+      <div class="ms-3 text-sm font-medium"><%= render_slot(@inner_block) %></div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples
@@ -196,7 +224,7 @@ defmodule ShellyWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="space-y-4 bg-white">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -302,7 +330,8 @@ defmodule ShellyWeb.CoreComponents do
 
   attr :type, :string,
     default: "text",
-    values: ~w(checkbox color date datetime-local date-picker email file month number password
+    values:
+      ~w(checkbox color date datetime-local date-picker date-time-picker email file month number password
                range search select tel text textarea time time-picker url week)
 
   attr :class, :string, default: nil
@@ -423,7 +452,7 @@ defmodule ShellyWeb.CoreComponents do
               "border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500"
           ]}
           value={Phoenix.HTML.Form.normalize_value("date", @value)}
-          phx-hook="Datepicker"
+          phx-hook="DatePicker"
           {@rest}
         />
       </div>
@@ -445,7 +474,7 @@ defmodule ShellyWeb.CoreComponents do
           name={@name}
           type="time"
           class={[
-            "block w-full ps-10 p-2.5 text-base rounded-lg leading-none",
+            "block w-full ps-10 p-2.5 text-base rounded-lg",
             @errors == [] &&
               [
                 "bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500",
@@ -458,6 +487,77 @@ defmodule ShellyWeb.CoreComponents do
           {@rest}
         />
       </div>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "date-time-picker"} = assigns) do
+    {date, time} =
+      case assigns.value do
+        %DateTime{} = date_time -> {DateTime.to_date(date_time), DateTime.to_time(date_time)}
+        _ -> {"", ""}
+      end
+
+    assigns =
+      assigns
+      |> assign(:date, date)
+      |> assign(:time, time)
+
+    ~H"""
+    <div phx-feedback-for={@name} id={@id} class={@class} phx-hook="DateTimePicker">
+      <.label for={@id}><%= @label %></.label>
+      <div class="flex items-center gap-x-4">
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+            <.icon name="hero-calendar-days" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          </div>
+
+          <input
+            type="text"
+            value={Phoenix.HTML.Form.normalize_value("date", @date)}
+            class={[
+              "block w-full ps-10 p-2.5 text-base rounded-lg datepicker-input",
+              @errors == [] &&
+                [
+                  "bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500",
+                  "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                ],
+              @errors != [] &&
+                "border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500"
+            ]}
+            data-role="date-picker"
+          />
+        </div>
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+            <.icon name="hero-clock" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          </div>
+          <input
+            type="time"
+            step="1"
+            value={Phoenix.HTML.Form.normalize_value("time", @time)}
+            class={[
+              "block w-full ps-10 p-2.5 text-base rounded-lg",
+              @errors == [] &&
+                [
+                  "bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500",
+                  "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                ],
+              @errors != [] &&
+                "border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500"
+            ]}
+            data-role="time-picker"
+          />
+        </div>
+      </div>
+      <input
+        class="hidden"
+        type="text"
+        name={@name}
+        data-role="input"
+        value={Phoenix.HTML.Form.normalize_value("datetime-local", @value)}
+      />
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -497,7 +597,7 @@ defmodule ShellyWeb.CoreComponents do
   slot :inner_block, required: true
 
   attr :class, :string, default: nil
-  attr :rest, :global, doc: "the arbitrary HTML attributes to add to logo"
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to container"
 
   def container(assigns) do
     ~H"""
@@ -621,10 +721,12 @@ defmodule ShellyWeb.CoreComponents do
           </td>
 
           <td :if={@action != []} class="px-6 py-4">
-            <span :for={{action, i} <- Enum.with_index(@action)}>
-              <%= render_slot(action, @row_item.(row)) %>
-              <span :if={i < Enum.count(@action) - 1}>|</span>
-            </span>
+            <.intersperse :let={action} enum={@action}>
+              <:separator>
+                <span>|</span>
+              </:separator>
+              <span><%= render_slot(action, @row_item.(row)) %></span>
+            </.intersperse>
           </td>
         </tr>
       </tbody>
@@ -655,6 +757,25 @@ defmodule ShellyWeb.CoreComponents do
           <dd class="text-zinc-700"><%= render_slot(item) %></dd>
         </div>
       </dl>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a chart.
+
+  ## Examples
+
+      <.chart data-series="[]" data-legend-show="true" />
+  """
+
+  attr :id, :string, required: true
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to chart"
+
+  def chart(assigns) do
+    ~H"""
+    <div class="overflow-hidden">
+      <div id={@id} phx-hook="Chart" {@rest}></div>
     </div>
     """
   end

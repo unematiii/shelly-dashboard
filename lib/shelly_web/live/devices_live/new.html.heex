@@ -10,7 +10,7 @@
 
     <.simple_form for={@form} phx-change="validate" phx-submit="save">
         <.input field={@form[:name]} label="Name" />
-        <.input field={@form[:custom_name]} label="Custom name" />
+        <.input field={@form[:custom_name]} label="Display name" />
 
         <:actions>
             <.button>Save</.button>

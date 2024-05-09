@@ -18,7 +18,7 @@ defmodule ShellyWeb.Router do
     pipe_through :browser
 
     live_session :default do
-      live "/", DashboardLive
+      live "/", DashboardLive.Dashboard
 
       live "/devices", DevicesLive.Index, :index
       live "/devices/new", DevicesLive.New, :new

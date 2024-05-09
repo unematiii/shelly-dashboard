@@ -9,12 +9,9 @@
         </:actions>
     </.header>
 
-    <div :if={length(@prices)==0}
-        class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
-        role="alert">
-        <.icon name="hero-information-circle" class="w-6 h-6 text-blue-700" />
-        <div class="ms-3 text-sm font-medium">No pricing info available</div>
-    </div>
+    <.alert :if={length(@prices)==0} variant="info">
+        No pricing info available
+    </.alert>
 
     <.table id="prices" rows={@prices} :if={length(@prices)>0} row_id={&("#{&1.id}")}>
         <:col :let={price} label="Name" bold>
@@ -34,8 +31,8 @@
         </:col>
 
         <:action :let={price}>
-            <.link navigate={~p"/pricing/#{price.id}"} class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit
-            </.link>
+            <.link navigate={~p"/pricing/#{price.id}"}
+                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</.link>
         </:action>
         <:action :let={price}>
             <span data-modal-target="delete-price-modal" data-modal-toggle="delete-price-modal"

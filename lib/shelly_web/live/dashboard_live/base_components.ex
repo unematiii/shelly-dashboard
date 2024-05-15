@@ -9,11 +9,8 @@ defmodule ShellyWeb.DashboardLive.BaseComponents do
     ~H"""
     <button
       type="button"
-      data-drawer-target={@target}
-      data-drawer-show={@target}
-      data-drawer-placement="right"
-      data-drawer-backdrop="false"
       aria-controls={@target}
+      phx-click={toggle_drawer("#" <> @target)}
       class={[
         "flex items-center justify-center text-white rounded-full fixed end-6 bottom-6 group w-14 h-14 focus:outline-none",
         "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300",
@@ -35,6 +32,7 @@ defmodule ShellyWeb.DashboardLive.BaseComponents do
       id={@name}
       class="fixed top-0 right-0 z-40 pt-20 h-screen p-4 overflow-y-auto transition-transform translate-x-full bg-white w-96 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700"
       tabindex="-1"
+      aria-hidden="true"
       aria-labelledby="drawer-right-label"
     >
       <h5
@@ -46,7 +44,7 @@ defmodule ShellyWeb.DashboardLive.BaseComponents do
 
       <button
         type="button"
-        data-drawer-hide={@name}
+        phx-click={toggle_drawer("#" <> @name)}
         aria-controls={@name}
         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-20 end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white"
       >
@@ -228,5 +226,13 @@ defmodule ShellyWeb.DashboardLive.BaseComponents do
 
   defp format_total(total) do
     Stats.convert(total, :wm, :kwh) |> Float.ceil(4)
+  end
+
+  ## JS Commands
+
+  def toggle_drawer(js \\ %JS{}, selector) do
+    js
+    |> JS.toggle_class("transform-none", to: selector)
+    |> JS.toggle_attribute({"aria-hidden", "true", "false"}, to: selector)
   end
 end

@@ -47,6 +47,21 @@ defmodule ShellyWeb.CoreComponents do
     """
   end
 
+  def alert(%{variant: "error"} = assigns) do
+    ~H"""
+    <div
+      class={[
+        "flex items-center p-4 mb-4 ttext-red-800 border-t-4 border-red-300 bg-red-50",
+        "dark:text-red-400 dark:bg-gray-800 dark:border-red-800"
+      ]}
+      role="alert"
+    >
+      <.icon name="hero-information-circle" class="w-6 h-6 text-red-800" />
+      <div class="ms-3 text-sm font-medium"><%= render_slot(@inner_block) %></div>
+    </div>
+    """
+  end
+
   @doc """
   Renders a modal.
 

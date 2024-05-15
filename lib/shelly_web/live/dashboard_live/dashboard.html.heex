@@ -9,12 +9,30 @@
             start_date={@start_date} end_date={@end_date} id="filters-form" />
     </.filters_drawer>
 
-    <div class="grid grid-cols-1 gap-4">
-        <.consumption_chart reports={@reports} />
+    <.async_result :let={reports} assign={@reports}>
+        <:loading>
+            <.skeleton status="Loading reports..." />
+        </:loading>
+        <:failed>
+            <.alert variant="error">An error occured wile loading reports</.alert>
+        </:failed>
 
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <.device_price_chart :for={{name, reports} <- Map.to_list(@reports)} name={name} reports={reports}
-                prices={@prices} />
+        <div class="grid grid-cols-1 gap-4">
+            <.consumption_chart reports={reports} />
+
+            <.async_result :let={prices} assign={@prices}>
+                <:loading>
+                    <.skeleton status="Loading prices..." />
+                </:loading>
+                <:failed>
+                    <.alert variant="error">An error occured wile loading pricing info</.alert>
+                </:failed>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <.device_price_chart :for={{name, device_reports} <- Map.to_list(reports)} name={name}
+                        reports={device_reports} prices={prices} />
+                </div>
+            </.async_result>
         </div>
-    </div>
+    </.async_result>
 </.container>

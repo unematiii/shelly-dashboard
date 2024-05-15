@@ -187,6 +187,24 @@ defmodule ShellyWeb.DashboardLive.BaseComponents do
     """
   end
 
+  attr :status, :string, default: "Loading..."
+
+  def skeleton(assigns) do
+    ~H"""
+    <div
+      role="status"
+      class="max-w p-4 mb-4 rounded-lg shadow animate-pulse md:p-6 dark:border-gray-700"
+    >
+      <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32 mb-2"></div>
+      <div class="w-48 h-4 mb-10 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+      <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+      <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+      <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-5"></div>
+      <span class="sr-only">{@status}</span>
+    </div>
+    """
+  end
+
   defp datetime_to_timestamp(date) do
     DateTime.to_unix(date, :milliseconds)
   end

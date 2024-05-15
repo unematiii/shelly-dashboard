@@ -53,13 +53,13 @@ defmodule ShellyWeb.DashboardLive.Dashboard do
       :end_date => end_date
     } = socket.assigns
 
-    prices =
-      Stats.list_prices_in_range(DateTime.to_date(start_date), DateTime.to_date(end_date))
-
-    set_prices(
-      socket,
-      prices
-    )
+    assign_async(socket, :prices, fn ->
+      {:ok,
+       %{
+         prices:
+           Stats.list_prices_in_range(DateTime.to_date(start_date), DateTime.to_date(end_date))
+       }}
+    end)
   end
 
   defp fetch_reports(socket) do
@@ -74,17 +74,19 @@ defmodule ShellyWeb.DashboardLive.Dashboard do
       devices
       |> Enum.filter(fn device -> Enum.member?(ids, device.id) end)
 
-    reports =
-      devices
-      |> Enum.reduce(%{}, fn device, acc ->
-        Map.put(
-          acc,
-          device.custom_name,
-          Cloud.list_reports_in_range(device.id, start_date, end_date)
-        )
-      end)
-
-    set_reports(socket, reports)
+    assign_async(socket, :reports, fn ->
+      {:ok,
+       %{
+         reports:
+           Enum.reduce(devices, %{}, fn device, acc ->
+             Map.put(
+               acc,
+               device.custom_name,
+               Cloud.list_reports_in_range(device.id, start_date, end_date)
+             )
+           end)
+       }}
+    end)
   end
 
   defp set_devices(socket, devices) do
@@ -101,13 +103,5 @@ defmodule ShellyWeb.DashboardLive.Dashboard do
 
   defp set_date_range(socket, %{:start_date => start_date, :end_date => end_date}) do
     assign(socket, %{start_date: start_date, end_date: end_date})
-  end
-
-  defp set_prices(socket, prices) do
-    assign(socket, prices: prices)
-  end
-
-  defp set_reports(socket, reports) do
-    assign(socket, reports: reports)
   end
 end

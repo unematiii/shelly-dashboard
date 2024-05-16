@@ -40,7 +40,12 @@ defmodule ShellyWeb.DevicesLive.Edit do
   end
 
   def handle_info({:device, device}, socket) do
-    {:noreply, set_device(socket, device)}
+    socket =
+      socket
+      |> create_form(device)
+      |> set_device(device)
+
+    {:noreply, socket}
   end
 
   defp create_form(socket, device) do

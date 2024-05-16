@@ -12,7 +12,7 @@ config :shelly, Shelly.Repo,
 
 # MQTT options
 config :shelly, Shelly.Mqtt.Connection,
-  enabled: true,
+  adapter: Tortoise.Connection,
   username: "user",
   password: "password",
   hostname: "localhost",

@@ -53,12 +53,10 @@ defmodule ShellyWeb.DashboardLive.Dashboard do
       :end_date => end_date
     } = socket.assigns
 
+    prices = Stats.list_prices_in_range(DateTime.to_date(start_date), DateTime.to_date(end_date))
+
     assign_async(socket, :prices, fn ->
-      {:ok,
-       %{
-         prices:
-           Stats.list_prices_in_range(DateTime.to_date(start_date), DateTime.to_date(end_date))
-       }}
+      {:ok, %{prices: prices}}
     end)
   end
 

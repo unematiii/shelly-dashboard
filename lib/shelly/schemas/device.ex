@@ -3,11 +3,11 @@ defmodule Shelly.Schemas.Device do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-          id: Integer.t(),
+          id: integer(),
           name: String.t(),
           custom_name: String.t(),
-          last_reported: Integer.t(),
-          total: Integer.t()
+          last_reported: integer(),
+          total: integer()
         }
 
   schema "devices" do

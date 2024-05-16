@@ -5,7 +5,7 @@ defmodule Shelly.Schemas.Price do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-          id: Integer.t(),
+          id: integer(),
           name: String.t(),
           type: atom(),
           amount: float(),
@@ -27,7 +27,6 @@ defmodule Shelly.Schemas.Price do
     timestamps(type: :utc_datetime)
   end
 
-  @spec changeset(Price.t(), map) :: Ecto.Changeset.t()
   def changeset(price, attrs) do
     price
     |> cast(attrs, [:name, :type, :amount, :start_date, :end_date])
@@ -49,18 +48,18 @@ defmodule Shelly.Schemas.Price do
     changeset
   end
 
+  def in_range(query, start_date, end_date) do
+    from(p in query,
+      where: fragment("? <= ?", p.start_date, ^start_date),
+      where: fragment("? >= ?", p.end_date, ^end_date)
+    )
+  end
+
   defp validate_date_range(changeset) do
     validate_date_range(
       changeset,
       get_field(changeset, :start_date),
       get_field(changeset, :end_date)
-    )
-  end
-
-  def in_range(query, start_date, end_date) do
-    from(p in query,
-      where: fragment("? <= ?", p.start_date, ^start_date),
-      where: fragment("? >= ?", p.end_date, ^end_date)
     )
   end
 

@@ -14,7 +14,13 @@ config :shelly, Shelly.Repo,
   pool_size: System.schedulers_online() * 2
 
 # MQTT options
-config :shelly, Shelly.Mqtt.Connection, enabled: false
+config :shelly, Shelly.Mqtt.Connection,
+  adapter: Shelly.MQTTConnectionMock,
+  username: "user",
+  password: "password",
+  hostname: "localhost",
+  port: 1883,
+  topic: "shellies/+/relay/0/energy"
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

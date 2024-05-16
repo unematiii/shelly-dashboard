@@ -1,6 +1,9 @@
 defmodule Shelly.Mqtt.Connection do
   def start_link(_opts) do
-    Tortoise.Connection.start_link(connection_options())
+    env = Application.fetch_env!(:shelly, __MODULE__)
+    opts = connection_options(env)
+
+    adapter(env).start_link(opts)
   end
 
   def child_spec(opts) do
@@ -10,18 +13,20 @@ defmodule Shelly.Mqtt.Connection do
     }
   end
 
-  defp connection_options() do
-    opts = Application.fetch_env!(:shelly, __MODULE__)
+  defp adapter(env) do
+    Keyword.fetch!(env, :adapter)
+  end
 
+  defp connection_options(env) do
     [
       client_id: "shelly",
       server:
         {Tortoise.Transport.Tcp,
-         host: Keyword.fetch!(opts, :hostname), port: Keyword.fetch!(opts, :port)},
-      user_name: Keyword.fetch!(opts, :username),
-      password: Keyword.fetch!(opts, :password),
+         host: Keyword.fetch!(env, :hostname), port: Keyword.fetch!(env, :port)},
+      user_name: Keyword.fetch!(env, :username),
+      password: Keyword.fetch!(env, :password),
       handler: {Shelly.Mqtt.Handler, []},
-      subscriptions: [{Keyword.fetch!(opts, :topic), 0}]
+      subscriptions: [{Keyword.fetch!(env, :topic), 0}]
     ]
   end
 end

@@ -516,6 +516,12 @@ defmodule ShellyWeb.CoreComponents do
 
     assigns =
       assigns
+      |> assign(
+        :value,
+        assigns
+        |> Map.get(:value, "")
+        |> normalize_datetime(:seconds)
+      )
       |> assign(:date, date)
       |> assign(:time, time)
 
@@ -566,13 +572,7 @@ defmodule ShellyWeb.CoreComponents do
           />
         </div>
       </div>
-      <input
-        class="hidden"
-        type="text"
-        name={@name}
-        data-role="input"
-        value={Phoenix.HTML.Form.normalize_value("datetime-local", @value)}
-      />
+      <input class="hidden" type="text" name={@name} data-role="input" value={@value} />
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -856,10 +856,11 @@ defmodule ShellyWeb.CoreComponents do
   """
   attr :name, :string, required: true
   attr :class, :string, default: nil
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to logo"
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, @class]} />
+    <span class={[@name, @class]} {@rest} />
     """
   end
 
@@ -884,6 +885,24 @@ defmodule ShellyWeb.CoreComponents do
          "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
+  end
+
+  @doc """
+  Formats date-time value for HTML Input fields
+  """
+  def normalize_datetime(value = %DateTime{}, :seconds) do
+    value
+    |> DateTime.truncate(:second)
+    |> DateTime.to_naive()
+    |> NaiveDateTime.to_iso8601()
+  end
+
+  def normalize_datetime(value = %DateTime{}, :minutes) do
+    Phoenix.HTML.Form.normalize_value("datetime-local", value)
+  end
+
+  def normalize_datetime(value, _precision) do
+    value
   end
 
   @doc """

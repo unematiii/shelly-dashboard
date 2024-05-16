@@ -122,7 +122,7 @@ defmodule ShellyWeb.DashboardLive.FiltersForm do
   end
 
   defp device_options(devices) do
-    Enum.map(devices, &{"#{&1.name}", &1.id})
+    Enum.map(devices, &{"#{&1.custom_name}", &1.id})
   end
 
   defp get_filters(changes) do

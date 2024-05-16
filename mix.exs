@@ -9,7 +9,8 @@ defmodule Shelly.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -57,7 +58,9 @@ defmodule Shelly.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
       {:tortoise, "~> 0.9"},
-      {:unique_names_generator, "~> 0.2.0"}
+      {:unique_names_generator, "~> 0.2.0"},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:live_isolated_component, "~> 0.8.0", only: [:dev, :test]}
     ]
   end
 

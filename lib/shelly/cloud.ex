@@ -177,6 +177,7 @@ defmodule Shelly.Cloud do
     |> Repo.all()
   end
 
+  @spec list_reports_in_range(integer(), DateTime.t(), DateTime.t()) :: list(Report.t())
   def list_reports_in_range(device_id, start_time, end_time) do
     Report
     |> Report.with_device(device_id)

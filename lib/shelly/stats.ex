@@ -13,6 +13,7 @@ defmodule Shelly.Stats do
 
   def get_price!(id), do: Repo.get!(Price, id)
 
+  @spec insert_price(map()) :: {:ok, Price.t()} | {:error, Ecto.Changeset.t()}
   def insert_price(attrs \\ %{}) do
     %Price{}
     |> Price.changeset(attrs)
@@ -25,6 +26,7 @@ defmodule Shelly.Stats do
     |> Repo.all()
   end
 
+  @spec list_prices_in_range(Date.t(), Date.t()) :: list(Price.t())
   def list_prices_in_range(start_time, end_time) do
     Price
     |> Price.in_range(start_time, end_time)
@@ -57,6 +59,27 @@ defmodule Shelly.Stats do
     |> Enum.map(&%{report: &1, total: 0})
     |> apply_prices(per_report_prices)
     |> apply_vat(vat)
+  end
+
+  def is_in_range?(%Date{} = start_date, %Date{} = end_date, %DateTime{} = subject) do
+    Date.range(start_date, end_date)
+    |> Enum.member?(DateTime.to_date(subject))
+  end
+
+  def is_in_range?(%Time{} = start_time, %Time{} = end_time, %DateTime{} = subject) do
+    subject_date = DateTime.to_date(subject)
+
+    {start_time, end_time} =
+      case Time.compare(start_time, end_time) do
+        :lt ->
+          {DateTime.new!(subject_date, start_time), DateTime.new!(subject_date, end_time)}
+
+        _ ->
+          {DateTime.new!(subject_date, start_time),
+           DateTime.new!(Date.add(subject_date, 1), end_time)}
+      end
+
+    DateTime.compare(subject, start_time) != :lt and DateTime.compare(end_time, subject) == :gt
   end
 
   @spec apply_prices(list(%{report: Report.t(), total: number()}), list(Price.t())) ::
@@ -101,15 +124,6 @@ defmodule Shelly.Stats do
     end
   end
 
-  defp is_in_range?(%Date{} = start_date, %Date{} = end_date, %DateTime{} = subject) do
-    Date.range(start_date, end_date)
-    |> Enum.member?(DateTime.to_date(subject))
-  end
-
-  defp is_in_range?(%Time{} = start_time, %Time{} = end_time, %DateTime{} = subject) do
-    Time.compare(subject, start_time) != :lt and Time.compare(end_time, subject) == :gt
-  end
-
   defp price_applies_to?(
          %Price{
            type: :hourly,
@@ -120,7 +134,10 @@ defmodule Shelly.Stats do
          },
          %Report{updated_at: updated_at}
        ) do
-    [{start_date, end_date, updated_at}, {hour_interval_start, hour_interval_end, updated_at}]
+    [
+      {start_date, end_date, updated_at},
+      {hour_interval_start, hour_interval_end, updated_at}
+    ]
     |> Enum.all?(fn {a, b, s} -> is_in_range?(a, b, s) end)
   end
 

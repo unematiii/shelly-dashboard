@@ -5,9 +5,11 @@ defmodule Shelly.Schemas.Report do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-          id: Integer.t(),
-          device_id: Integer.t(),
-          total: Integer.t()
+          id: integer(),
+          device_id: integer(),
+          total: integer(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
         }
 
   schema "reports" do
@@ -20,7 +22,7 @@ defmodule Shelly.Schemas.Report do
   @spec changeset(any, map) :: Ecto.Changeset.t()
   def changeset(report, attrs) do
     report
-    |> cast(attrs, [:device_id, :total])
+    |> cast(attrs, [:device_id, :total, :inserted_at, :updated_at])
     |> validate_required([:device_id, :total])
   end
 
